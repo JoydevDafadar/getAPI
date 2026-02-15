@@ -1,0 +1,54 @@
+Table tbl_codes{
+  context varchar2
+  code_status varchar2
+  code_meaning varchar2
+}
+
+Table table_name{
+  tbl_id long [pk]
+  user_id long 
+  tbl_name varchar2
+  
+  effective_date datetime
+  created_at datetime
+  updated_at datetime
+  updated_by varchar2
+
+}
+
+Table table_column{
+  tbl_col_id long [pk]
+  tbl_id long [ref: > table_name.tbl_id] 
+  tbl_col_name varchar2
+  tbl_col_type varcahr2
+  tbl_col_default varchar2
+
+  effective_date datetime
+  created_at datetime
+  updated_at datetime
+  updated_by varchar2
+}
+
+Table table_row{
+  tbl_row_id long [pk]
+  tbl_id long [ref: > table_name.tbl_id] 
+  tbl_col_id long [ref: > table_column.tbl_col_id]
+  tbl_row_value_number varchar2
+  tbl_row_value_string varchar2
+
+  effective_date datetime
+}
+
+Table col_const_mapping {
+
+  tbl_col_id long [ref: > table_column.tbl_col_id]
+  const_code varchar2 [ref: > col_constraints.const_code]
+
+}
+
+Table col_constraints{
+
+  const_code varchar2
+  const_meaning varcahr2
+
+}

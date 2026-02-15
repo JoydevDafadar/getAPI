@@ -1,0 +1,176 @@
+pivot
+
+Table Structure --- DDL ---
+
+
+CREATE TABLE tbl_dtls.table_row (
+	tbl_row_id int8 DEFAULT (nextval('tbl_dtls.tbls_row_seq'::regclass) || to_char(CURRENT_DATE::timestamp with time zone, 'ddmmyyyy'::text))::bigint NOT NULL,
+	tbl_id int8 NULL,
+	tbl_col_id int8 NOT NULL,
+	tbl_col_name varchar(50) NULL,
+	tbl_row_value_number int4 NULL,
+	tbl_row_value_string varchar(300) NULL,
+	effective_date timestamp NULL,
+	tbl_row_sequene int4 NULL,
+	CONSTRAINT table_row_pkey PRIMARY KEY (tbl_row_id),
+	CONSTRAINT table_row_tbl_col_id_fkey FOREIGN KEY (tbl_col_id) REFERENCES tbl_dtls.table_column(tbl_col_id),
+	CONSTRAINT table_row_tbl_id_fkey FOREIGN KEY (tbl_id) REFERENCES tbl_dtls.table_name(tbl_id)
+);
+
+
+
+
+CREATE EXTENSION IF NOT EXISTS tablefunc;
+   
+
+select tr.tbl_col_name parameter, 
+Coalesce((tr.tbl_row_value_number::text), tr.tbl_row_value_string) as value
+from 
+tbl_dtls.table_name tn,
+tbl_dtls.table_column tc,
+tbl_dtls.table_row tr 
+where tn.tbl_name = 't_product'
+and tn.user_id = '12345'
+and tn.tbl_id  = tc.tbl_id 
+and tr.tbl_id  = tn.tbl_id 
+and tr.tbl_col_id = tc.tbl_col_id 
+order by tr.tbl_row_sequene, tc.tbl_col_seq 
+
+select * from tbl_dtls.table_row
+
+select * from crosstab(
+'select tr.tbl_row_sequene, tr.tbl_col_name parameter, 
+Coalesce((tr.tbl_row_value_number::text), tr.tbl_row_value_string) as value
+from 
+tbl_dtls.table_name tn,
+tbl_dtls.table_column tc,
+tbl_dtls.table_row tr 
+where tn.tbl_name = ''t_product''
+and tn.user_id = ''12345''
+and tn.tbl_id  = tc.tbl_id 
+and tr.tbl_id  = tn.tbl_id 
+and tr.tbl_col_id = tc.tbl_col_id 
+order by tr.tbl_row_sequene, tc.tbl_col_seq
+'
+)
+as tbl ("row" int,"product_id" text, "price" text, "stocks_count" text, "product_name" text, "description" text)
+where tbl.product_id = '1001'
+
+
+
+--------------------------------------------------------- PIVOT Using CASE ---------------------------------------------------------------
+with base_query as (
+select
+	tr.tbl_row_sequene seq,
+	tr.tbl_col_name column,
+	tr.tbl_row_value_number number,
+	tr.tbl_row_value_string string
+from
+	tbl_dtls.table_name tn,
+	tbl_dtls.table_column tc,
+	tbl_dtls.table_row tr
+where
+	tn.user_id = '12345'
+	and tn.tbl_name = 't_product'
+	and tc.tbl_id = tn.tbl_id
+	and tr.tbl_id = tn.tbl_id
+	and tr.tbl_col_id = tc.tbl_col_id
+	and tr.effective_date is null
+	and tc.effective_date is null
+order by
+	tr.tbl_row_sequene 
+)
+select
+	qry.seq "seq",
+	MIN( case when qry.column = 'product_id' then qry.number end ) "product_id",
+	MIN( case when qry.column = 'product_name' then qry.string end ) "product_name",
+	MIN( case when qry.column = 'price' then qry.number end ) "price",
+	MIN( case when qry.column = 'stocks_count' then qry.number end ) "stocks_count", 
+	MIN( case when qry.column = 'description' then qry.string end ) "description"
+from
+	base_query qry
+group by
+	qry.seq
+
+
+
+
+
+-- drop table tbl_dtls.table_row;
+
+CREATE TABLE tbl_dtls.table_row (
+	tbl_row_id int8 DEFAULT (nextval('tbl_dtls.tbls_row_seq'::regclass) || to_char(CURRENT_DATE::timestamp with time zone, 'ddmmyyyy'::text))::bigint NOT NULL,
+	tbl_id int8 NULL,
+	effective_date timestamp NULL,
+	tbl_row_sequene int4 NULL,
+
+	col_11 int4 NULL,
+	col_12 NUMERIC(10, 4) NULL,
+	col_13 varchar(300) null,
+	
+	col_21 int4 NULL,
+	col_22 NUMERIC(10, 4) NULL,
+	col_23 varchar(300) null,
+	
+	col_31 int4 NULL,
+	col_32 NUMERIC(10, 4) NULL,
+	col_33 varchar(300) null,
+	
+	col_41 int4 NULL,
+	col_42 NUMERIC(10, 4) NULL,
+	col_43 varchar(300) null,
+	
+	col_51 int4 NULL,
+	col_52 NUMERIC(10, 4) NULL,
+	col_53 varchar(300) null,
+	
+	col_61 int4 NULL,
+	col_62 NUMERIC(10, 4) NULL,
+	col_63 varchar(300) null,
+	
+	col_71 int4 NULL,
+	col_72 NUMERIC(10, 4) NULL,
+	col_73 varchar(300) null,
+	
+	col_81 int4 NULL,
+	col_82 NUMERIC(10, 4) NULL,
+	col_83 varchar(300) null,
+	
+	col_91 int4 NULL,
+	col_92 NUMERIC(10, 4) NULL,
+	col_93 varchar(300) null,
+	
+	col_101 int4 NULL,
+	col_102 NUMERIC(10, 4) NULL,
+	col_103 varchar(300) null,
+	
+	CONSTRAINT table_row_pkey PRIMARY KEY (tbl_row_id),
+	CONSTRAINT table_row_tbl_id_fkey FOREIGN KEY (tbl_id) REFERENCES tbl_dtls.table_name(tbl_id)
+);
+
+
+select 
+
+( tr.col_11 ) "product_id",
+( tr.col_23 ) "product_name",
+( tr.col_31 ) "price",
+( tr.col_41 ) "stocks_count",
+( tr.col_53 ) "description"
+
+from tbl_dtls.table_row tr,
+tbl_dtls.table_name tn
+where tn.user_id = '12345'
+and tn.tbl_id = '104022112025'
+and tr.tbl_id  = tn.tbl_id 
+
+
+
+
+
+
+
+
+
+
+ 
+

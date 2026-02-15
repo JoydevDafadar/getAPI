@@ -1,0 +1,6 @@
+--- Probleam Faces -----
+
+1. Implementing Dynamic query based on conditional parameter --- > solved using direct EntityManager of Hibernate
+2. Converting list of object array into our corresponding objectDto ---> Used column sequence while generating queryheader and inserted data into same sequence.
+3. Implementing db_sequence in hibernate -> In GeneratedType there is no option to add,cast,union seq with date. Implemented native Query to generate seq in JPARepository.
+4. 

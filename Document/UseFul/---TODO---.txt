@@ -1,0 +1,9 @@
+---TODO---
+
+1. Exception Handling in GlobalResponseWrapper.
+2. Exception Handling through out the whole Cycle.
+	InvalidColumn
+		Length Missmatch
+		ColumnValueNotPresent
+		DataTypeMissmatch
+3. /table-name/save -- Need to implement column constraints with large scale.

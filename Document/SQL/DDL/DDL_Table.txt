@@ -1,0 +1,85 @@
+-- tbls_dtls.col_constraints definition
+
+-- Drop table
+
+-- DROP TABLE tbls_dtls.col_constraints;
+
+CREATE TABLE tbls_dtls.col_constraints (
+	column_name varchar(50) NULL,
+	const_code varchar(20) NULL,
+	const_meaning varchar(100) NULL,
+	CONSTRAINT col_constraints_const_code_key UNIQUE (const_code)
+);
+
+
+-- tbls_dtls.table_name definition
+
+-- Drop table
+
+-- DROP TABLE tbls_dtls.table_name;
+
+CREATE TABLE tbls_dtls.table_name (
+	tbl_id int4 DEFAULT (nextval('tbls_dtls.tbls_seq'::regclass) || to_char(CURRENT_DATE::timestamp with time zone, 'ddmmyyyy'::text))::integer NOT NULL,
+	user_id int4 NULL,
+	tbl_name varchar(200) NULL,
+	effective_date timestamp NULL,
+	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	updated_by varchar(100) NULL,
+	CONSTRAINT table_name_pkey PRIMARY KEY (tbl_id)
+);
+
+
+-- tbls_dtls.table_column definition
+
+-- Drop table
+
+-- DROP TABLE tbls_dtls.table_column;
+
+CREATE TABLE tbls_dtls.table_column (
+	tbl_col_id int4 DEFAULT (nextval('tbls_dtls.tbls_seq'::regclass) || to_char(CURRENT_DATE::timestamp with time zone, 'ddmmyyyy'::text))::integer NOT NULL,
+	tbl_id int4 NULL,
+	tbl_col_name varchar(50) NULL,
+	tbl_col_type varchar(20) NULL,
+	tbl_col_default varchar(100) NULL,
+	effective_date timestamp NULL,
+	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	updated_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	updated_by varchar(100) NULL,
+	CONSTRAINT table_column_pkey PRIMARY KEY (tbl_col_id),
+	CONSTRAINT table_column_tbl_id_fkey FOREIGN KEY (tbl_id) REFERENCES tbls_dtls.table_name(tbl_id)
+);
+
+
+-- tbls_dtls.table_row definition
+
+-- Drop table
+
+-- DROP TABLE tbls_dtls.table_row;
+
+CREATE TABLE tbls_dtls.table_row (
+	tbl_row_id int4 DEFAULT (nextval('tbls_dtls.tbls_row_seq'::regclass) || to_char(CURRENT_DATE::timestamp with time zone, 'ddmmyyyy'::text))::integer NOT NULL,
+	tbl_id int4 NULL,
+	tbl_col_id int4 NULL,
+	tbl_col_name varchar(50) NULL,
+	tbl_row_value_number varchar(50) NULL,
+	tbl_row_value_string varchar(300) NULL,
+	effective_date timestamp NULL,
+	CONSTRAINT table_row_pkey PRIMARY KEY (tbl_row_id),
+	CONSTRAINT table_row_tbl_col_id_fkey FOREIGN KEY (tbl_col_id) REFERENCES tbls_dtls.table_column(tbl_col_id),
+	CONSTRAINT table_row_tbl_id_fkey FOREIGN KEY (tbl_id) REFERENCES tbls_dtls.table_name(tbl_id)
+);
+
+
+-- tbls_dtls.col_const_mapping definition
+
+-- Drop table
+
+-- DROP TABLE tbls_dtls.col_const_mapping;
+
+CREATE TABLE tbls_dtls.col_const_mapping (
+	tbl_col_id int4 NULL,
+	const_code varchar(20) NULL,
+	CONSTRAINT col_const_mapping_const_code_fkey FOREIGN KEY (const_code) REFERENCES tbls_dtls.col_constraints(const_code),
+	CONSTRAINT col_const_mapping_tbl_col_id_fkey FOREIGN KEY (tbl_col_id) REFERENCES tbls_dtls.table_column(tbl_col_id)
+);

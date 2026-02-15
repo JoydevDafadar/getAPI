@@ -1,0 +1,43 @@
+
+
+###################################
+# Build output
+###################################
+target/
+classes/
+build/
+out
+
+
+###################################
+# Logs and pproperties 
+###################################
+*.log
+logs/
+
+*.properties
+application.properties
+
+###################################
+# maven and workspace
+###################################
+*.maven
+*.settings
+
+.maven/
+.settings/
+
+*.properties
+application.properties
+
+eclipse-workspace/
+
+
+###################################
+# Generated files
+###################################
+*.class
+*.jar
+*.war
+*.ear
+.vscode/
