@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.GetAPI.dao.TableName;
+import com.example.GetAPI.dto.SearchParameter;
 import com.example.GetAPI.repository.TableNameRepository;
 import com.example.GetAPI.validation.TableDetailsValidation;
 
@@ -89,7 +90,7 @@ public class TableDetailsController {
 			
 			log.debug("Entering into getTable " + tableName );
 			
-			Object dataObject = tableDetailsValidation.getTableRow(tableName, queryParams);
+			Object dataObject = tableDetailsValidation.getTableRow(tableName, queryParams, null);
 	        
 			System.out.println(queryParams);
 			
@@ -101,6 +102,29 @@ public class TableDetailsController {
 		}
 
 	}
+	
+	
+	@PostMapping("/get")
+	public ResponseEntity<Object> getTableDataByOperator( @PathVariable("table-name") String tableName,
+			@RequestBody List<SearchParameter> lstSearchParameters ) {
+		
+		try {
+			
+			log.debug("Entering into getTableDataByOperator " + tableName );
+			
+			Object dataObject = tableDetailsValidation.getTableRowByOperator(tableName, lstSearchParameters);
+	        
+			System.out.println(lstSearchParameters);
+			
+			return ResponseEntity.status(200).body(dataObject);
+			
+		} catch (Exception e) {
+			log.debug("Exception : /save :- " + e);
+			return ResponseEntity.status(404).body(Map.of("cause", e.getMessage()));
+		}
+
+	}
+	
 	
 	
 	

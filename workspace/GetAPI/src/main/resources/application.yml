@@ -1,0 +1,22 @@
+api:
+  mappings:
+    - url: /{table-name}/get
+      method: GET
+      controllerClass: tableDetailsController
+      controllerMethod: getTableData
+      requestDTO: REQUESTDTO
+      responseDTO: RESPONSEDTO
+
+    - url: /{table-name}/get
+      method: POST
+      controllerClass: tableDetailsController
+      controllerMethod: getTableDataByOperator
+      requestDTO: UserRequestDTO
+      responseDTO: UserResponseDTO
+
+    - url: /{table-name}/update/{primary-id}
+      method: PUT
+      controllerClass: tableDetailsController
+      controllerMethod: updateTableData
+      requestDTO: some
+      responseDTO: asdfadsf

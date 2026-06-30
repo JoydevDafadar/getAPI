@@ -85,7 +85,7 @@ public class TableDetailsTransaction {
 				// Adding condition 
 				if( propertyMap.containsKey(colName) ) {
 					queryCondition.append(" AND AA.\"" + colName + "\""
-							+ " in " + propertyMap.get(colName));
+							+ " " + propertyMap.get(colName));
 				}
 				
 			}
@@ -148,11 +148,11 @@ public class TableDetailsTransaction {
 				StringBuilder tempString =  new StringBuilder("setCol");
 
 				String colName = eachColumn.getTblColName();
-				String dataType = eachColumn.getTblColType();
-				int sequence = eachColumn.getTnlColSeq();
+				Datatypes dt = eachColumn.getTblColType();
+				int sequence = eachColumn.getTblColSeq();
 				
 			
-				Datatypes dt = Datatypes.valueOf(dataType);
+				//Datatypes dt = Datatypes.valueOf(dataType);
 				tempString.append( sequence );
 				tempString.append( dt.getCode() );
 				

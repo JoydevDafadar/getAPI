@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.sql.Update;
+
 import com.example.GetAPI.dao.TableColumn;
 import com.example.GetAPI.dao.TableRow;
 import com.example.GetAPI.enums.Datatypes;
@@ -51,6 +53,10 @@ public class Utility {
 	    }
 	}
 	
+	public static void updateObjectValue( Object target, Object value) {
+		target = value;
+	}
+	
 	
 	public static Map<String, Object> TblRowToObjectDto( List<TableColumn> tableColumn, TableRow tableRow ){
 		
@@ -84,12 +90,10 @@ public class Utility {
 		try {
 			
 			StringBuilder tempString =  new StringBuilder("");
-
-			String dataType = tableColumn.getTblColType();
-			int sequence = tableColumn.getTnlColSeq();
+			int sequence = tableColumn.getTblColSeq();
 			
 		
-			Datatypes dt = Datatypes.valueOf(dataType);
+			Datatypes dt = tableColumn.getTblColType();
 			tempString.append( sequence );
 			tempString.append( dt.getCode() );
 			

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,8 @@ import com.example.GetAPI.dao.TableColumn;
 import com.example.GetAPI.dao.TableName;
 import com.example.GetAPI.dao.TableRow;
 import com.example.GetAPI.dto.Pagenation;
+import com.example.GetAPI.dto.SearchParameter;
+import com.example.GetAPI.enums.DBOperator;
 import com.example.GetAPI.enums.Datatypes;
 import com.example.GetAPI.transaction.TableDetailsTransaction;
 import com.example.GetAPI.utility.Constants;
@@ -61,7 +64,7 @@ public class TableDetailsValidation {
 	// validation Check based on datatypes and length
 	// data operation
 
-	public Object getTableRow(String P_tableName, MultiValueMap<String, String> queryParams) {
+	public Object getTableRow(String P_tableName, MultiValueMap<String, String> queryParams, Map<String, DBOperator> operatorMap ) {
 
 		try {
 
@@ -77,13 +80,47 @@ public class TableDetailsValidation {
 
 				String colName = eachColumn.getTblColName();
 //				Integer length = eachColumn.getTblColLength();
-//				String dataType = eachColumn.getTblColType();
+				Datatypes dataType = eachColumn.getTblColType();
 
 				if (queryParams.containsKey(colName)) {
-					String groupString = queryParams.get(colName).stream().map(String::valueOf)
-							.collect(Collectors.joining("', '"));
+					
+					if( queryParams.get(colName).size() == 1 
+							&& ( operatorMap != null && operatorMap.containsKey(colName) ) ) {
+						
+						String groupString = queryParams.get(colName).get(0);
+						
+						propertyMap.put(colName, 
+								( operatorMap.get(colName).getCode() 
+										+ " '" + groupString + "' "));
+						
+//						switch ( dataType ) {
+//							case INT : {
+//								propertyMap.put(colName, 
+//										( operatorMap.get(colName).getCode() 
+//												+ " '" + groupString + "' "));
+//							}
+//							case STR : {
+//								propertyMap.put(colName, 
+//										( operatorMap.get(colName).getCode() 
+//												+ " '" + groupString + "' "));
+//							}
+//						}
+						
+					}
+					else {
+						
+						String groupString = queryParams.get(colName).stream().map(String::valueOf)
+								.collect(Collectors.joining("', '"));
 
-					propertyMap.put(colName, ("( '" + groupString + "' )"));
+						propertyMap.put(colName, ("IN ( '" + groupString + "' )"));
+						
+					}
+
+					
+//					String groupString = queryParams.get(colName).stream().map(String::valueOf)
+//							.collect(Collectors.joining("', '"));
+//
+//					propertyMap.put(colName, ("( '" + groupString + "' )"));
 				}
 
 			});
@@ -127,6 +164,44 @@ public class TableDetailsValidation {
 			Object dataObject = this.tableDetailsTransaction.getTableRowData(propertyMap, pagination, tableName,
 					TABLE_USERID_LONG);
 
+			return dataObject;
+
+		} catch (Exception e) {
+			log.debug("Exception : /get-table :- " + e);
+			return ResponseEntity.status(404).body(e.getMessage());
+		}
+
+	}
+	
+	public Object getTableRowByOperator(String P_tableName, List<SearchParameter> searchParameters ) {
+
+		try {
+
+			Pagenation pagination = new Pagenation();
+
+			MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
+			Map<String, DBOperator> operatorMap = new HashMap<String, DBOperator>();
+			
+			
+			
+			searchParameters.forEach( element -> {
+				
+				if ( Constants.QUERY_PARAM_LIST.contains( element.getParameterName() ) ) {
+					
+					queryParams.add(element.getParameterName(), element.getParameterValue());
+					
+				}else {
+					
+					queryParams.add( element.getParameterName() , element.getParameterValue() );
+					operatorMap.put( element.getParameterName() , element.getOperator());
+					
+				}
+				
+			});
+
+
+			Object dataObject = this.getTableRow(P_tableName, queryParams, operatorMap);
+			
 			return dataObject;
 
 		} catch (Exception e) {
@@ -189,7 +264,7 @@ public class TableDetailsValidation {
 
 				String colName = eachColumn.getTblColName();
 				Integer length = eachColumn.getTblColLength();
-				String dataType = eachColumn.getTblColType();
+				Datatypes dt = eachColumn.getTblColType();
 				
 				List<String> constList = eachColumn.getLstConstraints().stream()
 						.map(ColConstMapping::getConstCode)
@@ -198,7 +273,7 @@ public class TableDetailsValidation {
 				if (bodyParams.containsKey(colName)) {
 
 					Object data = bodyParams.get(colName);
-					Datatypes dt = Datatypes.valueOf(dataType);
+					//Datatypes dt = Datatypes.valueOf(dataType);
 
 					switch (dt) {
 					case STR: {
@@ -319,9 +394,9 @@ public class TableDetailsValidation {
 		
 		String colName = tableColumn.getTblColName();
 		Integer length = tableColumn.getTblColLength();
-		String dataType = tableColumn.getTblColType();
+		//String dataType = tableColumn.getTblColType();
 
-		Datatypes dt = Datatypes.valueOf(dataType);
+		Datatypes dt = tableColumn.getTblColType();
 		
 		switch (dt) {
 		case STR: {
