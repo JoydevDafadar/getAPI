@@ -36,7 +36,7 @@ public class TableRow {
 	private Integer tblRowSequene;
 
 	@Column(name = "col_11")
-	private Integer col11;
+	private Long col11;
 
 	@Column(name = "col_12")
 	private BigDecimal col12;
@@ -45,7 +45,7 @@ public class TableRow {
 	private String col13;
 
 	@Column(name = "col_21")
-	private Integer col21;
+	private Long col21;
 
 	@Column(name = "col_22")
 	private BigDecimal col22;
@@ -54,7 +54,7 @@ public class TableRow {
 	private String col23;
 
 	@Column(name = "col_31")
-	private Integer col31;
+	private Long col31;
 
 	@Column(name = "col_32")
 	private BigDecimal col32;
@@ -63,7 +63,7 @@ public class TableRow {
 	private String col33;
 
 	@Column(name = "col_41")
-	private Integer col41;
+	private Long col41;
 
 	@Column(name = "col_42")
 	private BigDecimal col42;
@@ -72,7 +72,7 @@ public class TableRow {
 	private String col43;
 
 	@Column(name = "col_51")
-	private Integer col51;
+	private Long col51;
 
 	@Column(name = "col_52")
 	private BigDecimal col52;
@@ -81,7 +81,7 @@ public class TableRow {
 	private String col53;
 
 	@Column(name = "col_61")
-	private Integer col61;
+	private Long col61;
 
 	@Column(name = "col_62")
 	private BigDecimal col62;
@@ -90,7 +90,7 @@ public class TableRow {
 	private String col63;
 
 	@Column(name = "col_71")
-	private Integer col71;
+	private Long col71;
 
 	@Column(name = "col_72")
 	private BigDecimal col72;
@@ -99,7 +99,7 @@ public class TableRow {
 	private String col73;
 
 	@Column(name = "col_81")
-	private Integer col81;
+	private Long col81;
 
 	@Column(name = "col_82")
 	private BigDecimal col82;
@@ -108,7 +108,7 @@ public class TableRow {
 	private String col83;
 
 	@Column(name = "col_91")
-	private Integer col91;
+	private Long col91;
 
 	@Column(name = "col_92")
 	private BigDecimal col92;
@@ -117,7 +117,7 @@ public class TableRow {
 	private String col93;
 
 	@Column(name = "col_101")
-	private Integer col101;
+	private Long col101;
 
 	@Column(name = "col_102")
 	private BigDecimal col102;

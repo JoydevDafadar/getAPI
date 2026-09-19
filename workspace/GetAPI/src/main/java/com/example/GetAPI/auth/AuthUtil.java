@@ -35,7 +35,7 @@ public class AuthUtil {
 				.claim("userRole", user.getUserRole())
 				.claim("userEmail", user.getUserEmail())
 				.issuedAt(new Date())
-				.expiration(new Date(System.currentTimeMillis() + 1000*60*10 ))
+				.expiration(new Date(System.currentTimeMillis() + 1000*60*30 ))
 				.signWith(getSecratKey())
 				.compact();		
 		

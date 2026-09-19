@@ -46,7 +46,7 @@ public class AuthService {
 	
 	public LoginResponseDto signupUser(SignUpRequestDto signUpRequestDto) {
 		
-		User user = userRepository.findByUserNameAndUsergroupId( signUpRequestDto.getUserName(), 12345L ).orElse(null);
+		User user = userRepository.findByUserNameAndUsergroupId( signUpRequestDto.getUserName(), 11111L ).orElse(null);
 		
 		if( user == null ) {
 			
@@ -55,7 +55,7 @@ public class AuthService {
 			User createdUser = User.builder()
 					.userName(signUpRequestDto.getUserName())
 					.userId(userIdLong)
-					.usergroupId(12345L)
+					.usergroupId(11111L)
 					.password(passwordEncoder.encode(signUpRequestDto.getPassword()))
 					.userRole(signUpRequestDto.getUserRole())
 					.userEmail(signUpRequestDto.getUserEmail())

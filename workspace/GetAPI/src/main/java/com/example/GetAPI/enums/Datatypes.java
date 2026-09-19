@@ -2,7 +2,7 @@ package com.example.GetAPI.enums;
 
 public enum Datatypes {
 
-	INT(1),
+	LNG(1),
 	FLT(2),
 	STR(3);
 	

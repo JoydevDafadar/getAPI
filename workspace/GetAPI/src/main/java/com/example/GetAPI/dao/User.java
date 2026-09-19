@@ -30,7 +30,7 @@ schema = "tbl_dtls",
 uniqueConstraints = {
 		@UniqueConstraint(
 			name = "uk_t_user_usergroupid_username",
-			columnNames = {"usergroupid", "usergroupid"}
+			columnNames = {"usergroupid", "username"}
 		)
 })
 public class User implements UserDetails {

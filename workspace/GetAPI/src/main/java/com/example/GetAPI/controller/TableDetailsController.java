@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -192,6 +193,26 @@ public class TableDetailsController {
 			log.debug("Entering into updateTableData primaryId - " + primaryId );
 			
 			Object dataObject = tableDetailsValidation.updateRowById(tableName, primaryId, pRowData);
+			
+			return ResponseEntity.status(200).body(dataObject);
+			
+		} catch (Exception e) {
+			log.debug("Exception : /save :- " + e);
+			return ResponseEntity.status(404).body(Map.of("cause", e.getMessage()));
+		}
+		
+	}
+	
+	@DeleteMapping ("/delete/{primary-id}")
+	public ResponseEntity<Object> deleteTableData ( 
+			@PathVariable("table-name") String tableName,
+			@PathVariable("primary-id") Long primaryId  ){
+		
+		try {
+			
+			log.debug("Entering into deleteTableData primaryId - " + primaryId );
+			
+			Object dataObject = tableDetailsValidation.deleteRowById(tableName, primaryId);
 			
 			return ResponseEntity.status(200).body(dataObject);
 			

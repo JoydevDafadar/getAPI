@@ -43,7 +43,7 @@ public class CoreTableValidation {
 	@Autowired
 	private CoreTableTransaction coreTableTransaction;
 	
-	private final static Long TABLE_USERID_LONG = 12345L;
+	private final static Long TABLE_USERID_LONG = 11111L;
 
 	private final Logger log = LoggerFactory.getLogger(CoreTableValidation.class);
 	
@@ -110,7 +110,7 @@ public class CoreTableValidation {
 						if( element.getColumnLength() == null ) element.setColumnLength(Constants.DEFAULT_COLUMN_STR_LENGTH);
 						break;
 					}
-					case INT: {
+					case LNG: {
 						if( element.getColumnLength() != null ) element.setColumnLength(null);
 						break;
 					}
@@ -135,7 +135,7 @@ public class CoreTableValidation {
 							}
 							existsPrimaryKey.set(true);
 							
-							element.setColumnType( Datatypes.INT );
+							element.setColumnType( Datatypes.LNG );
 							element.setColumnLength(null);
 							element.setMandatory(true);
 							

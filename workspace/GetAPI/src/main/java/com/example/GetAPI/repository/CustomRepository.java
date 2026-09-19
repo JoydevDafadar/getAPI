@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
 
 @Repository
 public class CustomRepository {
@@ -34,6 +35,24 @@ public class CustomRepository {
 	    query.setParameter("tableId", tableId);
 	    
 	   return query.getResultList();
+	    
+	}
+	
+	public List<Tuple> executeQuery( String paramQuery ) {
+		
+ 	    String sql = paramQuery;
+	    Query query = entityManager.createNativeQuery(sql, Tuple.class);
+	    
+	   return query.getResultList();
+	    
+	}
+	
+	public int executeUpdate( String paramQuery ) {
+		
+ 	    String sql = paramQuery;
+	    Query query = entityManager.createNativeQuery(sql);
+	    
+	   return query.executeUpdate();
 	    
 	}
 	

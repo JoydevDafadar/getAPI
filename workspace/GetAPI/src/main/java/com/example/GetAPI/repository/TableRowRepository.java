@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.example.GetAPI.dao.TableName;
 import com.example.GetAPI.dao.TableRow;
 
 @Repository
@@ -27,10 +28,12 @@ public interface TableRowRepository extends JpaRepository<TableRow, Long> {
 //			+ "" , nativeQuery = true )
 //	 List<Object> findTableRows(String queryHeader, Long userId, Long tableId);
 	
-	@Query( value = "select (nextval('tbl_dtls.tbls_row_seq'::regclass) || to_char(CURRENT_DATE::timestamp with time zone, 'ddmm'::text))::bigint",
+	@Query( value = "select (nextval('tbl_dtls.tbls_row_seq'::regclass) || to_char(CURRENT_DATE::timestamp with time zone, 'ddmmyyyy'::text))::bigint",
 			nativeQuery = true)
 	Long generateRowSequence();
 
 	Optional<TableRow> findByTblRowIdAndTblId(Long p_tableId, Long p_tableRow_Id);
+
+	long deleteByTblRowIdAndTblId(Long p_tableRow_Id, Long p_tableId);
 
 }

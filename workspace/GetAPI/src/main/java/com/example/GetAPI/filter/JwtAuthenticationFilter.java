@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
+@Order(3)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	
 	@Autowired
@@ -49,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if( userName != null && SecurityContextHolder.getContext().getAuthentication() == null ) {
 			
 			// Finding user object 
-			User user = this.userRepository.findByUserNameAndUsergroupId(userName, 12345L).orElseThrow();
+			User user = this.userRepository.findByUserNameAndUsergroupId(userName, 11111L).orElseThrow();
 			
 			UsernamePasswordAuthenticationToken authenticationToken 
 											= new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

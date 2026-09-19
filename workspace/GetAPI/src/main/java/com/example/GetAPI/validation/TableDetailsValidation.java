@@ -1,5 +1,6 @@
 package com.example.GetAPI.validation;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ import com.example.GetAPI.dto.Pagenation;
 import com.example.GetAPI.dto.SearchParameter;
 import com.example.GetAPI.enums.DBOperator;
 import com.example.GetAPI.enums.Datatypes;
+import com.example.GetAPI.enums.TransactionEvent;
+import com.example.GetAPI.enums.TransactionType;
 import com.example.GetAPI.transaction.TableDetailsTransaction;
 import com.example.GetAPI.utility.Constants;
 import com.example.GetAPI.utility.Utility;
@@ -33,8 +36,11 @@ public class TableDetailsValidation {
 
 	@Autowired
 	private TableDetailsTransaction tableDetailsTransaction;
+	
+	@Autowired
+	private CompositeAPIValidation compositeAPIValidation;
 
-	private final static Long TABLE_USERID_LONG = 12345L;
+	private final static Long TABLE_USERID_LONG = 11111L;
 
 	private final Logger log = LoggerFactory.getLogger(TableDetailsValidation.class);
 
@@ -161,14 +167,30 @@ public class TableDetailsValidation {
 			});
 
 			System.out.println(queryParams);
+			
+			
+			// PreTransaction Validation
+			Map<String, String[]> queryParamsMap = queryParams.entrySet()
+			        .stream()
+			        .collect(Collectors.toMap(
+			                Map.Entry::getKey,
+			                entry -> entry.getValue().toArray(new String[0])
+			        ));
+			
+			this.compositeAPIValidation.validateTransactionEvent(queryParamsMap, null, 
+					TransactionEvent.PRE_TRANSACTION, TransactionType.VALIDATION);
+			
 			Object dataObject = this.tableDetailsTransaction.getTableRowData(propertyMap, pagination, tableName,
 					TABLE_USERID_LONG);
 
+			this.compositeAPIValidation.validateTransactionEvent(queryParamsMap, dataObject, 
+					TransactionEvent.POST_TRANSACTION, TransactionType.TRANSACTION);
+			
 			return dataObject;
 
 		} catch (Exception e) {
 			log.debug("Exception : /get-table :- " + e);
-			return ResponseEntity.status(404).body(e.getMessage());
+			throw new RuntimeException(e.getMessage());
 		}
 
 	}
@@ -206,7 +228,7 @@ public class TableDetailsValidation {
 
 		} catch (Exception e) {
 			log.debug("Exception : /get-table :- " + e);
-			return ResponseEntity.status(404).body(e.getMessage());
+			throw new RuntimeException(e.getMessage());
 		}
 
 	}
@@ -292,11 +314,13 @@ public class TableDetailsValidation {
 						bodyParams.put(colName, trimedString);
 						break;
 					}
-					case INT: {
-
-						if (!(data instanceof Integer)) {
+					case LNG: {
+						
+						data = Utility.refreashType(data, dt);
+						
+						if (!(data instanceof Long)) {
 							throw new NullPointerException(
-									"Expeccted DataType -INT. But " + colName + " is " + data.getClass().getName());
+									"Expeccted DataType -Long. But " + colName + " is " + data.getClass().getName());
 						}
 						
 						bodyParams.put(colName, data);
@@ -304,7 +328,7 @@ public class TableDetailsValidation {
 					}
 					case FLT: {
 
-						if (!(data instanceof Integer)) {
+						if (!(data instanceof Float) && !(data instanceof Double)) {
 							throw new NullPointerException(
 									"Expeccted DataType -STR. But " + colName + " is " + data.getClass().getName());
 						}
@@ -314,7 +338,7 @@ public class TableDetailsValidation {
 					}
 
 					}
-				} else if ( !(constList.contains("PKEY") || (eachColumn.getTblColNullable() == true)) ) {
+				} else if ( !(constList.contains("PKEY") || (eachColumn.getTblColNullable() == false)) ) {
 					throw new NullPointerException(colName + " is not present.");
 				}
 
@@ -377,6 +401,41 @@ public class TableDetailsValidation {
 	}
 	
 	
+	public Map<String, Object> deleteRowById(String p_tableName, Long primaryId ) {
+
+		try {
+			log.debug("Entering into getTableDataById with - " + p_tableName + " - " + TABLE_USERID_LONG 
+					 + " primaryId - " + primaryId );
+			
+			p_tableName = Utility.isNullOrEmpty(p_tableName, "table-name");
+			primaryId = Utility.isNullOrEmpty(primaryId, "primary-id");
+
+			TableName tableName = this.tableDetailsTransaction.getTableData(p_tableName, TABLE_USERID_LONG);
+			
+			
+			long count = this.tableDetailsTransaction.deleteRowById(tableName.getTblId(), primaryId );
+			
+			Map<String, Object> resultMap = new HashMap<String, Object>();
+			resultMap.put("RowDeleted", count);
+			resultMap.put("tableName", tableName.getTblName());
+			
+			if( count > 0 ) {
+				resultMap.put("status", "success");
+			}else {
+				resultMap.put("status", "faliure");
+			}
+			
+			return resultMap;
+
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+		catch (Exception e) {
+			throw new NoSuchElementException(e.getMessage());
+		}
+		
+	}
+	
 	
 	
 	
@@ -414,11 +473,11 @@ public class TableDetailsValidation {
 			
 			return trimedString;
 		}
-		case INT: {
-
-			if (!(data instanceof Integer)) {
+		case LNG: {
+			data = Utility.refreashType(data, dt);
+			if (!(data instanceof Long)) {
 				throw new NullPointerException(
-						"Expeccted DataType -INT. But " + colName + " is " + data.getClass().getName());
+						"Expeccted DataType -Long. But " + colName + " is " + data.getClass().getName());
 			}
 			
 			return data;
@@ -439,15 +498,7 @@ public class TableDetailsValidation {
 		
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 	
 

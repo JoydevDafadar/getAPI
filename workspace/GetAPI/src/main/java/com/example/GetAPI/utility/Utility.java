@@ -7,14 +7,27 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.sql.Update;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.GetAPI.dao.TableColumn;
 import com.example.GetAPI.dao.TableRow;
+import com.example.GetAPI.dao.User;
 import com.example.GetAPI.enums.Datatypes;
 
 import jakarta.persistence.Column;
 
 public class Utility {
+	
+	public static User getSecurityAuthentication() {
+		Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		if( principle instanceof User  ) {
+			return ((User) principle);
+		}
+		return null;
+	}
 	
 	public static void callSetter(
 	        Object target,
@@ -145,5 +158,27 @@ public class Utility {
 		}
 		
 	}
+	
+	public static Object refreashType( Object input, Datatypes dt ) {
+		try {
+			
+			switch (dt) {
+			case  LNG : {
+				
+				if( input instanceof Long ) {
+					return input;
+				}
+				else {
+					return Long.parseLong(input.toString());
+				}
+			}
+			default:
+				return input;
+			}
+		} catch (Exception e) {
+			return input;
+		}
+	}
+	
 
 }

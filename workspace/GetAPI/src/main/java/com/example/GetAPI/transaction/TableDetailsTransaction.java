@@ -13,6 +13,7 @@ import org.springframework.boot.jackson.autoconfigure.JacksonProperties.Datatype
 import org.springframework.stereotype.Service;
 
 import com.example.GetAPI.dao.ColConstMapping;
+import com.example.GetAPI.dao.TEventTransaction;
 import com.example.GetAPI.dao.TableColumn;
 import com.example.GetAPI.dao.TableName;
 import com.example.GetAPI.dao.TableRow;
@@ -20,9 +21,12 @@ import com.example.GetAPI.dto.Pagenation;
 import com.example.GetAPI.enums.Constraints;
 import com.example.GetAPI.enums.Datatypes;
 import com.example.GetAPI.repository.CustomRepository;
+import com.example.GetAPI.repository.TEventTransactionRepository;
 import com.example.GetAPI.repository.TableNameRepository;
 import com.example.GetAPI.repository.TableRowRepository;
 import com.example.GetAPI.utility.Utility;
+
+import jakarta.persistence.Column;
 
 @Service
 public class TableDetailsTransaction {
@@ -35,6 +39,9 @@ public class TableDetailsTransaction {
 	
 	@Autowired
 	private CustomRepository customRepository;
+	
+	@Autowired
+	private TEventTransactionRepository tEventTransactionRepository;
 	
 
 	public TableName getTableData(String p_tableName, Long p_userId) {
@@ -163,7 +170,7 @@ public class TableDetailsTransaction {
 					
 					switch (ct) {
 						case PKEY : {
-							bodyParams.put(colName, Math.toIntExact(seqLong) );
+							bodyParams.put(colName, seqLong );
 							break;
 						}
 						case UNQ : {
@@ -210,6 +217,18 @@ public class TableDetailsTransaction {
 						throw new NoSuchElementException("Row not found by this Id - " + p_tableRow_Id );
 					});
 			
+			return tableRow;
+			
+		} catch (Exception e) {
+			throw new NoSuchElementException(e.getMessage());
+		}
+	}
+	
+	public Long deleteRowById(Long p_tableId, Long p_tableRow_Id) {
+
+		try {
+			
+			Long tableRow = this.tableRowRepository.deleteByTblRowIdAndTblId( p_tableRow_Id, p_tableId );
 			return tableRow;
 			
 		} catch (Exception e) {
@@ -278,6 +297,41 @@ public class TableDetailsTransaction {
 		catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
+	}
+	
+	public List<TEventTransaction> getLstEventTransaction(Long userGroupId, String eventCode, String url, String method, String actionType) {
+		
+		try {
+			
+			List<TEventTransaction> lstTEventTransactions = tEventTransactionRepository
+					.findAllByUsergroupIdAndEventCodeAndApiEpAndApiMethodAndActionType(userGroupId, eventCode, url, method, actionType);
+			return 	lstTEventTransactions;
+		}
+		catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e.getMessage());
+		}
+		
+	}
+	
+	
+	
+	public void validateTransactionEvent(Object req, Object res, String event) {
+		
+		try {
+			
+			
+			
+		}
+		catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e.getMessage());
+		}
+		
 	}
 	
 	
