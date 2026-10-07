@@ -19,50 +19,60 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="table_name", schema="tbl_dtls")
+@Table(name = "table_name", schema = "tbl_dtls")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class TableName {
-	
+
 	@Id
-	@Column( name = "tbl_id")
+	@Column(name = "tbl_id")
 	private Long tblId;
 
-	@Column( name = "user_id")
+	@Column(name = "user_id")
 	private Long userId;
 
-	@Column( name = "tbl_name")
-	private String tblName; 
+	@Column(name = "tbl_name")
+	private String tblName;
+
+	@Column(name = "tbl_type")
+	private String tblType;
 	
-	@Column( name = "tbl_row_count")
+	@Column(name = "tbl_key")
+	private String tblKey;
+
+
+	@Column(name = "tbl_schema")
+	private String tblSchema;
+
+	@Column(name = "tbl_row_count")
 	private Integer tblRowCount;
 
-	@Column( name = "effective_date")
+	@Column(name = "effective_date")
 	private Timestamp effectiveDate;
 
-	@Column( name = "created_at")
+	@Column(name = "created_at")
 	private Timestamp createdAt;
 
-	@Column( name = "updated_at")
+	@Column(name = "updated_at")
 	private Timestamp updatedAt;
 
-	@Column( name = "updated_by")
+	@Column(name = "updated_by")
 	private String updatedBy;
-	
-	@OneToMany( mappedBy = "tableName" )
+
+	@OneToMany(mappedBy = "tableName")
 	List<TableColumn> lstColumn;
 
 	@PrePersist
-    protected void onCreate() {
+	protected void onCreate() {
 		createdAt = new Timestamp(System.currentTimeMillis());
-	    updatedAt = new Timestamp(System.currentTimeMillis());
-    }
+		updatedAt = new Timestamp(System.currentTimeMillis());
+	}
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = new Timestamp(System.currentTimeMillis());
-    }
-	
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = new Timestamp(System.currentTimeMillis());
+	}
+
 }

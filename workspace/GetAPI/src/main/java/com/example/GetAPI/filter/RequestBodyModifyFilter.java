@@ -148,6 +148,7 @@ public class RequestBodyModifyFilter
             filterChain.doFilter(wrapped, response);
             
 		} catch (Exception e) {
+			e.printStackTrace();
 			filterChain.doFilter(request, response);
 		}
         

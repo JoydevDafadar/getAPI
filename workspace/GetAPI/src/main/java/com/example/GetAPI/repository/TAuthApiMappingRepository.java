@@ -15,13 +15,13 @@ public interface TAuthApiMappingRepository extends JpaRepository<TAuthApiMapping
 	Optional<TAuthApiMapping> findByUsergroupIdAndApiEpAndApiMethod(long l, String requestUrl, String requestMethod);
 	
 	@Query(value = """
-	            SELECT tbl_dtls.getsequncebycode(
+	            SELECT tbl_dtls.getsequencebycode(
 	                CAST(:groupId AS BIGINT),
 	                CAST(:seqCode AS VARCHAR)
 	            )
 	            """,
 	        nativeQuery = true)
-	Optional<String> getSequenceByCode(Long userIdLong, String seqCode);
+	Optional<String> getSequenceByCode(Long groupId, String seqCode);
 	
 	
 }

@@ -86,8 +86,8 @@ public class CoreTableTransaction {
 				tableName.setTblName(p_tableName);
 				tableName.setUserId(userId);
 				tableName.setUpdatedBy("SYSTEM");
-				
-				
+				tableName.setTblType("VIRTUAL");
+				tableName.setTblSchema("NA");
 			}
 			
 			tableName = tableNameRepository.save(tableName);

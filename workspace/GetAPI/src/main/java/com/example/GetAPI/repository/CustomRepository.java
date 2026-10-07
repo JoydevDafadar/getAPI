@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+import com.example.GetAPI.dao.TableName;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -33,6 +35,21 @@ public class CustomRepository {
 	    Query query = entityManager.createNativeQuery(sql);
 	    query.setParameter("userId", userId);
 	    query.setParameter("tableId", tableId);
+	    
+	   return query.getResultList();
+	    
+	}
+	
+public List<Object[]> findPhysicalTableRows( String queryHeader, String queryCondition, TableName tableName ) {
+		
+	    
+ 	    String sql = "SELECT  " +
+	                 queryHeader + " " +
+	                 "FROM " + tableName.getTblSchema() + "." + tableName.getTblName() + " AA " +
+	                 "WHERE 1=1"
+	                 + queryCondition;
+	    
+	    Query query = entityManager.createNativeQuery(sql);
 	    
 	   return query.getResultList();
 	    

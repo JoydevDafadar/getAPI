@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.example.GetAPI.dao.ColConstMapping;
 import com.example.GetAPI.dao.TEventTransaction;
 import com.example.GetAPI.dao.TableColumn;
+import com.example.GetAPI.dao.TableColumnMetadata;
 import com.example.GetAPI.dao.TableName;
 import com.example.GetAPI.dao.TableRow;
 import com.example.GetAPI.dto.Pagenation;
@@ -22,6 +23,7 @@ import com.example.GetAPI.enums.Constraints;
 import com.example.GetAPI.enums.Datatypes;
 import com.example.GetAPI.repository.CustomRepository;
 import com.example.GetAPI.repository.TEventTransactionRepository;
+import com.example.GetAPI.repository.TableColumnRepository;
 import com.example.GetAPI.repository.TableNameRepository;
 import com.example.GetAPI.repository.TableRowRepository;
 import com.example.GetAPI.utility.Utility;
@@ -33,6 +35,9 @@ public class TableDetailsTransaction {
 
 	@Autowired
 	private TableNameRepository tableNameRepository;
+	
+	@Autowired
+	private TableColumnRepository tableColumnRepository;
 
 	@Autowired
 	private TableRowRepository tableRowRepository;
@@ -62,6 +67,68 @@ public class TableDetailsTransaction {
 		}
 		return tableName;
 	}
+	
+	public TableName resolvePhysicalColumn( TableName tableName ) {
+
+		List<TableColumnMetadata> lstColumns = null;
+		List<TableColumn> columns =  new ArrayList<TableColumn>();
+		try {
+			
+			Map<String, TableColumn> columnMap = new HashMap<String, TableColumn>();
+			
+			lstColumns = tableColumnRepository
+					.getTableColumnMetadata(tableName.getTblSchema(), tableName.getTblName());
+			
+			for( TableColumnMetadata tableColumnMetadata : lstColumns ) {
+				
+				TableColumn tableColumn = new TableColumn();
+				
+				if( columnMap.containsKey(tableColumnMetadata.getTblColName()) ) {
+					tableColumn = columnMap.get(tableColumnMetadata.getTblColName());
+				}
+				else {
+					tableColumn.setTblColId( tableColumnMetadata.getTblColId() );
+					tableColumn.setTblColName( tableColumnMetadata.getTblColName() );
+					tableColumn.setTblColLength( tableColumnMetadata.getTblColLength() );
+					tableColumn.setTblColNullable( tableColumnMetadata.getTblColNullable() );
+					tableColumn.setTblColType( tableColumnMetadata.getTblColType() );
+					tableColumn.setTblColSeq( Integer.getInteger( tableColumnMetadata.getTblColId().toString() ) );
+				}
+				
+				List<ColConstMapping> lstConstMappins = new ArrayList<ColConstMapping>();
+				if ( tableColumn.getLstConstraints() != null ) lstConstMappins = tableColumn.getLstConstraints();
+
+				lstConstMappins.add(
+						new ColConstMapping( Integer.getInteger( tableColumnMetadata.getTblColId().toString()),
+								tableColumn, tableColumnMetadata.getConstraintType()));
+				
+				tableColumn.setLstConstraints(lstConstMappins);
+				
+				if( !columnMap.containsKey(tableColumnMetadata.getTblColName()) ) {
+					columns.add(tableColumn);
+				}
+				
+				// Refactor Sorting column 
+				/*if( "RID".equalsIgnoreCase( pagination.getOrderBy() )) {
+					pagination.setOrderBy(tableColumn.getTblColName() );
+				}
+				if( pagination != null && "PKEY".equalsIgnoreCase( tableColumnMetadata.getConstraintType() ) ) {
+					pagination.setOrderBy(tableColumn.getTblColName() );
+				}*/
+				
+			}
+			
+			tableName.setLstColumn(columns);
+
+
+		} catch (NoSuchElementException e) {
+			throw new NoSuchElementException(e.getMessage());
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e.getMessage());
+		}
+		return tableName;
+	}
 
 	
 	
@@ -79,14 +146,18 @@ public class TableDetailsTransaction {
 
 			for (TableColumn eachColumn : tableName.getLstColumn()) {
 				
-				StringBuilder tempString =  new StringBuilder("( tr.col_");
+				StringBuilder tempString =  new StringBuilder(" ( tr.col_");
 
 				String colName = eachColumn.getTblColName();
 		
-				tempString.append( Utility.getColInd(eachColumn) );
-				tempString.append( " ) \"" + colName + "\"");
+				if( "PHYSICAL".equalsIgnoreCase(tableName.getTblType()) ){
+					headerList.add( " \"" + colName + "\"" );
+				}else {
+					tempString.append( Utility.getColInd(eachColumn) );
+					tempString.append( " ) \"" + colName + "\"");
 
-				headerList.add(tempString.toString());
+					headerList.add(tempString.toString());
+				}
 				columnList.add(colName);
 				
 				// Adding condition 
@@ -106,8 +177,12 @@ public class TableDetailsTransaction {
 			queryCondition.append(" ORDER BY AA.\"" + pagenation.getOrderBy() + "\" ASC");
 			queryCondition.append(" LIMIT " + selectRow  + " OFFSET " + skipRow );
 			
-			
-			List<Object[]> data =  customRepository.findTableRows(queryHeader.toString(), userId, tableName.getTblId(), queryCondition.toString());
+			List<Object[]> data = null;
+			if( "PHYSICAL".equalsIgnoreCase(tableName.getTblType()) ){
+				data =  customRepository.findPhysicalTableRows(queryHeader.toString(), queryCondition.toString(), tableName);
+			}else {
+				data =  customRepository.findTableRows(queryHeader.toString(), userId, tableName.getTblId(), queryCondition.toString());
+			}
 			
 			// Binding rough object with DTO
 			for( int ind = 0; ind<data.size(); ind++ ) {
@@ -116,7 +191,11 @@ public class TableDetailsTransaction {
 				Object[] element = data.get(ind);
 				
 				for( int i = 0; i<columnList.size(); i++ ) {
-					JOSNDto.put(columnList.get(i), element[i+1]);
+					if( "PHYSICAL".equalsIgnoreCase(tableName.getTblType()) ){
+						JOSNDto.put(columnList.get(i), element[i]);
+					}else {
+						JOSNDto.put(columnList.get(i), element[i+1]);
+					}
 				}
 				
 				dtoObject.add(JOSNDto);	
@@ -138,10 +217,16 @@ public class TableDetailsTransaction {
 			TableRow tableRow = new TableRow();
 			Long seqLong = tableRowRepository.generateRowSequence();
 			
-			tableRow.setTblId(tableName.getTblId());
-			tableRow.setTblRowId(seqLong);
-			tableRow.setTblRowSequene(tableName.getTblRowCount()+1);
-			tableName.setTblRowCount(tableName.getTblRowCount()+1);
+			if( "PHYSICAL".equalsIgnoreCase(tableName.getTblType()) ){
+				
+			}
+			else {
+				tableRow.setTblId(tableName.getTblId());
+				tableRow.setTblRowId(seqLong);
+				tableRow.setTblRowSequene(tableName.getTblRowCount()+1);
+				tableName.setTblRowCount(tableName.getTblRowCount()+1);
+			}
+
 
 
 			for (TableColumn eachColumn : tableName.getLstColumn()) {

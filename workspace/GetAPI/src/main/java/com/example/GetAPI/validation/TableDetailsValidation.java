@@ -70,7 +70,7 @@ public class TableDetailsValidation {
 	// validation Check based on datatypes and length
 	// data operation
 
-	public Object getTableRow(String P_tableName, MultiValueMap<String, String> queryParams, Map<String, DBOperator> operatorMap ) {
+	public Object getTableRow(String P_tableName, MultiValueMap<String, String> queryParams, Map<String, DBOperator> operatorMap) {
 
 		try {
 
@@ -81,6 +81,10 @@ public class TableDetailsValidation {
 			Map<String, String> propertyMap = new HashMap<String, String>();
 
 			TableName tableName = this.tableDetailsTransaction.getTableData(P_tableName, TABLE_USERID_LONG);
+			if( "PHYSICAL".equalsIgnoreCase(tableName.getTblType()) ){
+				this.tableDetailsTransaction.resolvePhysicalColumn(tableName, pagination);
+			}
+			
 
 			tableName.getLstColumn().forEach((eachColumn) -> {
 
@@ -269,6 +273,9 @@ public class TableDetailsValidation {
 			log.debug("Entering into saveTableData with - " + p_tableName + " - " + TABLE_USERID_LONG);
 
 			tableName = this.tableDetailsTransaction.getTableData(p_tableName, TABLE_USERID_LONG);
+			if( "PHYSICAL".equalsIgnoreCase(tableName.getTblType()) ){
+				this.tableDetailsTransaction.resolvePhysicalColumn(tableName, null);
+			}
 			
 			
 			
@@ -344,7 +351,16 @@ public class TableDetailsValidation {
 
 			});
 			
+			this.compositeAPIValidation.validateTransactionEvent(bodyParams, null, 
+					TransactionEvent.PRE_TRANSACTION, TransactionType.VALIDATION);
+			
+			
 			Object obj = this.tableDetailsTransaction.saveTableData(bodyParams, tableName, TABLE_USERID_LONG);
+			
+
+			this.compositeAPIValidation.validateTransactionEvent(bodyParams, obj, 
+					TransactionEvent.POST_TRANSACTION, TransactionType.TRANSACTION);
+			
 			return obj;
 
 		} catch (NullPointerException e) {
